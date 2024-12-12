@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1A2B Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        .game-container {
+            max-width: 400px;
+            margin: auto;
+        }
+        input[type="text"] {
+            width: 200px;
+            padding: 5px;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        .history {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>112306027_HW6_1A2B</h1>
+    <div class="game-container">
+        <p>猜 4 個不重複的數字：</p>
+        <input type="text" id="userGuess" placeholder="輸入 4 個數字" maxlength="4">
+        <button onclick="submitGuess()">提交答案</button>
+        <p id="message"></p>
+        <div class="history">
+            <h3>歷史紀錄</h3>
+            <ul id="history"></ul>
+        </div>
+    </div>
+
+    <script>
+        let answer = generateAnswer();
+        let attempts = 0;
+
+        function generateAnswer() {
+            const digits = Array.from({ length: 10 }, (_, i) => i.toString());
+            const answerArray = [];
+            while (answerArray.length < 4) {
+                const randomIndex = Math.floor(Math.random() * digits.length);
+                answerArray.push(digits[randomIndex]);
+                digits.splice(randomIndex, 1);
+            }
+            return answerArray;
+        }
+
+        function submitGuess() {
+            const userGuess = document.getElementById("userGuess").value;
+            const message = document.getElementById("message");
+            const history = document.getElementById("history");
+
+            // 清空訊息
+            message.textContent = "";
+
+            // 驗證輸入
+            if (!/^[0-9]{4}$/.test(userGuess)) {
+                alert("請輸入 4 個數字！");
+                return;
+            }
+            if (new Set(userGuess).size !== 4) {
+                alert("數字不能重複！");
+                return;
+            }
+
+            attempts++;
+            const result = checkGuess(userGuess);
+
+            // 更新歷史紀錄
+            const listItem = document.createElement("li");
+            listItem.textContent = `${userGuess} -> ${result}`;
+            history.appendChild(listItem);
+
+            if (result === "4A0B") {
+                alert(`恭喜答對！總共猜了 ${attempts} 次。`);
+                resetGame();
+            } else {
+                document.getElementById("userGuess").value = "";
+            }
+        }
+
+        function checkGuess(guess) {
+            let A = 0, B = 0;
+            const guessArray = guess.split("");
+
+            guessArray.forEach((digit, index) => {
+                if (digit === answer[index]) {
+                    A++;
+                } else if (answer.includes(digit)) {
+                    B++;
+                }
+            });
+
+            return `${A}A${B}B`;
+        }
+
+        function resetGame() {
+            answer = generateAnswer();
+            attempts = 0;
+            document.getElementById("history").innerHTML = "";
+            document.getElementById("userGuess").value = "";
+            document.getElementById("message").textContent = "新遊戲開始！";
+        }
+    </script>
+</body>
+</html>
